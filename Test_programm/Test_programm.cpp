@@ -1361,3 +1361,15 @@
 //	std::cerr << "Unknown error\n";
 //	return 5;
 //}
+
+int testGit(int x)
+	{
+		x = 0;
+		return x;
+	}
+
+int main()
+{
+	
+	return 0;
+}
