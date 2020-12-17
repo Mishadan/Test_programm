@@ -1362,20 +1362,36 @@
 //	return 5;
 //}
 
-int main()
-try {
-	if (true){ std::cout << "Success!\n"; }
-	else std::cout << "Fail!\n";
-	system ("pause");
-	return 0;
-}
-catch (std::exception& e) {
-	std::cerr << "Error: " << e.what() << '\n';
-	system("pause");
-	return 1;
-}
-catch (...) {
-	std::cerr << "Unknown exception!\n";
-	system("pause");
-	return 2;
-}
+
+////Преобразование температуры из K в C
+//void error(std::string s)
+//{
+//	throw std::runtime_error(s);
+//}
+//double temp(double c)
+//{
+//	if (c < -273.15) error("temp < 0K\n");
+//	double k = 0;
+//	k = c + 273.15;
+//	return k;
+//}
+//int main()
+//try {
+//	double c = 0;
+//	double k = 0;
+//	std::cin >> c;
+//	if (!std::cin) error("error cin c");
+//	std::cout << c << "C = " << temp(c) << "K\n";
+//	system ("pause");
+//	return 0;
+//}
+//catch (std::exception& e) {
+//	std::cerr << "Error: " << e.what() << '\n';
+//	system("pause");
+//	return 1;
+//}
+//catch (...) {
+//	std::cerr << "Unknown exception!\n";
+//	system("pause");
+//	return 2;
+//}
