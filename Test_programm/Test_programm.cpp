@@ -1362,14 +1362,20 @@
 //	return 5;
 //}
 
-int testGit(int x)
-	{
-		x = 0;
-		return x;
-	}
-
 int main()
-{
-	
+try {
+	if (true){ std::cout << "Success!\n"; }
+	else std::cout << "Fail!\n";
+	system ("pause");
 	return 0;
+}
+catch (std::exception& e) {
+	std::cerr << "Error: " << e.what() << '\n';
+	system("pause");
+	return 1;
+}
+catch (...) {
+	std::cerr << "Unknown exception!\n";
+	system("pause");
+	return 2;
 }
