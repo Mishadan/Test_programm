@@ -1395,3 +1395,16 @@
 //	system("pause");
 //	return 2;
 //}
+
+
+
+////Последовательность Фибоначи
+//int main()
+//{
+//	std::vector<int> v = { 0,1 };
+//	for (int i = 0; i != 45; ++i)
+//	{
+//		v.push_back(v[v.size() - 1] + v[v.size() - 2]);
+//		std::cout << i << "\t" << v[i] << "\n";
+//	}
+//}
