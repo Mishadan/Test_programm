@@ -1462,7 +1462,7 @@ private:
 	
 };
 
-token_stream ts;
+
 
 token_stream::token_stream()
 		:full(false) , buffer (0)
@@ -1488,6 +1488,7 @@ token token_stream::get()
 	switch (ch)
 	{
 	case ';':case'q':case'(':case')':case'*':case'/':case'+':case'-':
+	case'{':case'}':case'!':
 		return token(ch);
 		
 	case'.':case'0':case'1':case'2':case'3':case'4':case'5':case'6':case'7':case'8':case'9':
@@ -1502,11 +1503,29 @@ token token_stream::get()
 	}
 }
 
+token_stream ts;
 double expression();
 
+	
 double primary()
 {
 	token t = ts.get();
+	token f = ts.get();
+	int i = 1;
+	if (f.sim == '!')
+	{
+		if (t.num == 0)	return i;
+		while (t.num > 0)
+		{
+			i *= t.num;
+			--t.num;
+		}
+		return i;
+	}
+	else
+	{
+		ts.putback(f);
+	}
 	switch (t.sim)
 	{
 	case'(':
@@ -1514,11 +1533,28 @@ double primary()
 		double d = expression();
 		t = ts.get();
 		if (t.sim != ')') error(") not find");
+		t = ts.get();
+		if (t.sim == '!')
+		{
+			while (d > 0)
+			{
+				i *= d;
+				--d;
+			}
+			d = i;
+		}
+		else ts.putback(t);
+		return d;
+	}
+	case'{':
+	{
+		double d = expression();
+		t = ts.get();
+		if (t.sim != '}') error("} not find");
 		return d;
 	}
 	case '8':
-		return t.num;
-	case'q':case';': return t.sim;
+		return t.num;	
 	default:
 		error("Numbers not find");
 	}
@@ -1578,6 +1614,7 @@ int main()
 try
 {
 	double val = 0;
+	double f = 0;
 	while (std::cin)
 	{
 		/*std::cout << "= " << expression() << '\n';				//version 1
@@ -1588,11 +1625,18 @@ try
 		{
 			break;
 		}
+		if (t.sim == '!')
+		{
+			f = val;
+			val = expression();
+
+		}
 		if (t.sim == ';')
 		{
 			std::cout << "= " << val << '\n';
 			val = 0;
 		}
+		
 		else
 		{
 			ts.putback(t);
