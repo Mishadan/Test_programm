@@ -1614,7 +1614,6 @@ int main()
 try
 {
 	double val = 0;
-	double f = 0;
 	while (std::cin)
 	{
 		/*std::cout << "= " << expression() << '\n';				//version 1
@@ -1624,12 +1623,6 @@ try
 		if (t.sim == 'q')
 		{
 			break;
-		}
-		if (t.sim == '!')
-		{
-			f = val;
-			val = expression();
-
 		}
 		if (t.sim == ';')
 		{
