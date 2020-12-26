@@ -1415,6 +1415,7 @@
 
 
 //Калькулятор
+#include <cmath>
 void error(std::string s)
 {
 	throw std::runtime_error(s);
@@ -1514,13 +1515,8 @@ double primary()
 	int i = 1;
 	if (f.sim == '!')
 	{
-		if (t.num == 0)	return i;
-		while (t.num > 0)
-		{
-			i *= t.num;
-			--t.num;
-		}
-		return i;
+		if (t.num == 0)	return 1;
+		return std::tgamma(t.num+1);
 	}
 	else
 	{
@@ -1536,12 +1532,7 @@ double primary()
 		t = ts.get();
 		if (t.sim == '!')
 		{
-			while (d > 0)
-			{
-				i *= d;
-				--d;
-			}
-			d = i;
+			d = tgamma(d+1);
 		}
 		else ts.putback(t);
 		return d;
