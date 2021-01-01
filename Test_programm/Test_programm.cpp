@@ -1414,221 +1414,293 @@
 
 
 
-//Калькулятор
-#include <cmath>
-void error(std::string s)
-{
-	throw std::runtime_error(s);
-}
-
-class token 
-{
-public:
-	char sim;
-	double num;
-	token(char ch) : sim(ch), num(0) {};
-	token(char ch, double val) : sim(ch), num(val) {};
-};
-
-//token get_token()															//version 1 (=ts.get())
+////Калькулятор
+//#include <cmath>
+//void error(std::string s)
 //{
+//	throw std::runtime_error(s);
+//}
+//
+//class token 
+//{
+//public:
+//	char sim;
+//	double num;
+//	token(char ch) : sim(ch), num(0) {};
+//	token(char ch, double val) : sim(ch), num(val) {};
+//};
+//
+////token get_token()															//version 1 (=ts.get())
+////{
+////	char ch;
+////	std::cin >> ch;
+////	switch (ch)
+////	{
+////	case ';':case'q':case'(':case')':case'*':case'/':case'+':case'-':
+////		return token(ch);
+////			break;
+////	case'.':case'0':case'1':case'2':case'3':case'4':case'5':case'6':case'7':case'8':case'9':
+////		{
+////			std::cin.putback(ch);
+////			double val;
+////			std::cin >> val;
+////			return token('8', val);
+////		}
+////	default:
+////		error("Bad token");
+////	}
+////}
+//
+//class token_stream 
+//{
+//public:
+//	token_stream();
+//	token get();
+//	void putback(token t);
+//private:
+//	bool full;
+//	token buffer;
+//	
+//};
+//
+//
+//
+//token_stream::token_stream()
+//		:full(false) , buffer (0)
+//{
+//}
+//
+//void token_stream::putback(token t)
+//{
+//	if (full) error("Buffer is full");
+//	buffer = t;
+//	full = true;
+//}
+//
+//token token_stream::get()
+//{
+//	if (full)
+//	{
+//		full = false;
+//		return buffer;
+//	}
 //	char ch;
 //	std::cin >> ch;
 //	switch (ch)
 //	{
 //	case ';':case'q':case'(':case')':case'*':case'/':case'+':case'-':
+//	case'{':case'}':case'!':
 //		return token(ch);
-//			break;
+//		
 //	case'.':case'0':case'1':case'2':case'3':case'4':case'5':case'6':case'7':case'8':case'9':
-//		{
-//			std::cin.putback(ch);
-//			double val;
-//			std::cin >> val;
-//			return token('8', val);
-//		}
+//	{
+//		std::cin.putback(ch);
+//		double val;
+//		std::cin >> val;
+//		return token('8', val);
+//	}
 //	default:
 //		error("Bad token");
 //	}
 //}
+//
+//token_stream ts;
+//double expression();
+//
+//	
+//double primary()
+//{
+//	token t = ts.get();
+//	token f = ts.get();
+//	int i = 1;
+//	if (f.sim == '!')
+//	{
+//		if (t.num == 0)	return 1;
+//		return std::tgamma(t.num+1);
+//	}
+//	else
+//	{
+//		ts.putback(f);
+//	}
+//	switch (t.sim)
+//	{
+//	case'(':
+//	{
+//		double d = expression();
+//		t = ts.get();
+//		if (t.sim != ')') error(") not find");
+//		t = ts.get();
+//		if (t.sim == '!')
+//		{
+//			d = tgamma(d+1);
+//		}
+//		else ts.putback(t);
+//		return d;
+//	}
+//	case'{':
+//	{
+//		double d = expression();
+//		t = ts.get();
+//		if (t.sim != '}') error("} not find");
+//		return d;
+//	}
+//	case '8':
+//		return t.num;	
+//	default:
+//		error("Numbers not find");
+//	}
+//}
+//
+//double term()
+//{
+//	double left = primary();
+//	token t = ts.get();
+//	while (true)
+//	{
+//		switch (t.sim)
+//		{
+//		case '*':
+//			left *= primary();
+//			t = ts.get();
+//			break;
+//		case'/':
+//		{
+//			double d = primary();
+//			if (d == 0) error("/0");
+//			left /= d;
+//			t = ts.get();
+//			break;
+//		}
+//		default:
+//			ts.putback(t);
+//			return left;
+//		}
+//	}
+//}
+//
+//double expression()
+//{
+//	double left = term();
+//	token t = ts.get();
+//	while (true)
+//	{
+//		switch (t.sim)
+//		{
+//		case '+':
+//			left += term();
+//			t = ts.get();
+//			break;
+//		case '-':
+//			left -=term();
+//			t = ts.get();
+//			break;
+//		default:
+//			ts.putback(t);
+//			return left;
+//		}
+//	}
+//}
+//
+//int main()
+//try
+//{
+//	double val = 0;
+//	while (std::cin)
+//	{
+//		/*std::cout << "= " << expression() << '\n';				//version 1
+//		system("pause");*/
+//
+//		token t = ts.get();
+//		if (t.sim == 'q')
+//		{
+//			break;
+//		}
+//		if (t.sim == ';')
+//		{
+//			std::cout << "= " << val << '\n';
+//			val = 0;
+//		}
+//		
+//		else
+//		{
+//			ts.putback(t);
+//			val = expression();
+//		}
+//	}
+//	return 0;
+//}
+//catch (std::exception& e) {
+//	std::cerr << "Error: " << e.what() << '\n';
+//	system("pause");
+//	return 1;
+//}
+//catch (...) {
+//	std::cerr << "Unknown exception!\n";
+//	system("pause");
+//	return 2;
+//}
 
-class token_stream 
+
+
+
+
+//Разбор числа по разрядам
+
+void error(std::string s)
 {
-public:
-	token_stream();
-	token get();
-	void putback(token t);
-private:
-	bool full;
-	token buffer;
-	
-};
-
-
-
-token_stream::token_stream()
-		:full(false) , buffer (0)
-{
+	throw std::runtime_error(s);
 }
 
-void token_stream::putback(token t)
+int main() try
 {
-	if (full) error("Buffer is full");
-	buffer = t;
-	full = true;
-}
-
-token token_stream::get()
-{
-	if (full)
+	setlocale(LC_ALL, "Russian");
+	std::vector<std::string> v510 = { "сотен тысяч", "десятков тысяч", "тысяч", "сотен", "десятков", "едениц" };
+	std::vector<std::string> v1 = { "сотня тысяч", "десяток тысяч", "тысячя", "сотня", "десяток", "еденица" };
+	std::vector<std::string> v24 = { "сотни тысяч", "десятка тысяч", "тысячи", "сотени", "десятка", "еденицы" };
+	std::string d = " ";
+	std::vector<int> num;
+	std::cout << "Эта Программа раскладывает число по разрядам\n"
+		<< "Пожалуйста введите целое число : ";
+	while (std::cin >> d)
 	{
-		full = false;
-		return buffer;
-	}
-	char ch;
-	std::cin >> ch;
-	switch (ch)
-	{
-	case ';':case'q':case'(':case')':case'*':case'/':case'+':case'-':
-	case'{':case'}':case'!':
-		return token(ch);
-		
-	case'.':case'0':case'1':case'2':case'3':case'4':case'5':case'6':case'7':case'8':case'9':
-	{
-		std::cin.putback(ch);
-		double val;
-		std::cin >> val;
-		return token('8', val);
-	}
-	default:
-		error("Bad token");
-	}
-}
-
-token_stream ts;
-double expression();
-
-	
-double primary()
-{
-	token t = ts.get();
-	token f = ts.get();
-	int i = 1;
-	if (f.sim == '!')
-	{
-		if (t.num == 0)	return 1;
-		return std::tgamma(t.num+1);
-	}
-	else
-	{
-		ts.putback(f);
-	}
-	switch (t.sim)
-	{
-	case'(':
-	{
-		double d = expression();
-		t = ts.get();
-		if (t.sim != ')') error(") not find");
-		t = ts.get();
-		if (t.sim == '!')
+		for (int i = 0; i < d.size(); ++i)
 		{
-			d = tgamma(d+1);
+			num.push_back(d[i] - '0');
+			if (num[num.size() - 1] > 9)
+			{
+				error("Некорректный ввод");
+			}
 		}
-		else ts.putback(t);
-		return d;
-	}
-	case'{':
-	{
-		double d = expression();
-		t = ts.get();
-		if (t.sim != '}') error("} not find");
-		return d;
-	}
-	case '8':
-		return t.num;	
-	default:
-		error("Numbers not find");
-	}
-}
-
-double term()
-{
-	double left = primary();
-	token t = ts.get();
-	while (true)
-	{
-		switch (t.sim)
+		if (d.size() > v1.size())
 		{
-		case '*':
-			left *= primary();
-			t = ts.get();
-			break;
-		case'/':
+			error("Числа больше 999 999 пока не поддерживаются.");
+		}
+		std::cout << d << " - это ";
+		for (int i = 0; i < d.size(); ++i)
 		{
-			double d = primary();
-			if (d == 0) error("/0");
-			left /= d;
-			t = ts.get();
-			break;
+			
+			if (num[i] == 1) 
+			{
+				std::cout << num[i] << " " << v1[v1.size() - d.size() + i] << " ";
+			}
+			if (num[i] > 4 || num[i] == 0)
+			{
+				std::cout << num[i] << " " << v510[v1.size() - d.size() + i] << " ";
+			}
+			if (num[i] > 1 && num[i] < 5)
+			{
+				std::cout << num[i] << " " << v24[v1.size() - d.size() + i] << " ";
+			}
+			if (i == d.size() - 2) std::cout << " и ";
+			else if (i == d.size() - 1) std::cout << ".\n" << "\nПожалуйста введите целое число : ";
+			else std::cout << ", ";
 		}
-		default:
-			ts.putback(t);
-			return left;
-		}
+		num.clear();
 	}
-}
-
-double expression()
-{
-	double left = term();
-	token t = ts.get();
-	while (true)
-	{
-		switch (t.sim)
-		{
-		case '+':
-			left += term();
-			t = ts.get();
-			break;
-		case '-':
-			left -=term();
-			t = ts.get();
-			break;
-		default:
-			ts.putback(t);
-			return left;
-		}
-	}
-}
-
-int main()
-try
-{
-	double val = 0;
-	while (std::cin)
-	{
-		/*std::cout << "= " << expression() << '\n';				//version 1
-		system("pause");*/
-
-		token t = ts.get();
-		if (t.sim == 'q')
-		{
-			break;
-		}
-		if (t.sim == ';')
-		{
-			std::cout << "= " << val << '\n';
-			val = 0;
-		}
-		
-		else
-		{
-			ts.putback(t);
-			val = expression();
-		}
-	}
+	system("pause");
 	return 0;
 }
+
 catch (std::exception& e) {
 	std::cerr << "Error: " << e.what() << '\n';
 	system("pause");
