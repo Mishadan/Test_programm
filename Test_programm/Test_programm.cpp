@@ -1441,6 +1441,7 @@ public:
 	token_stream();
 	token get();
 	void putback(token t);
+	void ignore(char c);
 private:
 	bool full;
 	token buffer;
@@ -1459,6 +1460,19 @@ void token_stream::putback(token t)
 	if (full) error("Buffer is full");
 	buffer = t;
 	full = true;
+}
+
+void token_stream::ignore(char c)
+{
+	if (full && c == buffer.sim)
+	{
+		full = false;
+		return;
+	}
+	full = false;
+	char ch = 0;
+	while (std::cin >> ch)
+		if (ch == c) return;
 }
 
 token token_stream::get()
@@ -1600,11 +1614,17 @@ double expression()
 		}
 	}
 }
+
+void clean_up_mess()
+{
+	ts.ignore(print);
+}
+
 void calculate()
 {
 	double val = 0;
 	while (std::cin)
-	{
+	try{
 		token t = ts.get();
 		while (t.sim == print) t = ts.get();
 		if (t.sim == quit) return;
@@ -1627,6 +1647,10 @@ void calculate()
 			val = expression();
 		}*/
 	}
+	catch (std::exception& e) {
+		std::cerr << "Error: " << e.what() << '\n';
+		clean_up_mess();
+	}
 }
 int main()
 try
@@ -1636,11 +1660,7 @@ try
 	system("pause");
 	return 0;
 }
-catch (std::exception& e) {
-	std::cerr << "Error: " << e.what() << '\n';
-	system("pause");
-	return 1;
-}
+
 catch (...) {
 	std::cerr << "Unknown exception!\n";
 	system("pause");
