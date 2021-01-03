@@ -1417,26 +1417,29 @@
 //Калькулятор(calculator)
 #include <cmath>
 
-const char number = '8';
-const char quit = 'q';
-const char print = ';';
-const std::string result = "= ";
+
+
 void error(std::string s)
 {
 	throw std::runtime_error(s);
 }
-
-class token 
+void error(std::string s1, std::string s2)
 {
+	throw std::runtime_error(s1 + s2);
+}
+
+class token {
 public:
 	char sim;
 	double num;
-	token(char ch) : sim(ch), num(0) {};
-	token(char ch, double val) : sim(ch), num(val) {};
+	std::string name;
+	token(char ch) : sim(ch), num(0) {}
+	token(char ch, double val) : sim(ch), num(val) {}
+	token (char ch, std::string n)	:sim(ch), name(n) {}
 };
 
-class token_stream 
-{
+
+class token_stream {
 public:
 	token_stream();
 	token get();
@@ -1475,19 +1478,22 @@ void token_stream::ignore(char c)
 		if (ch == c) return;
 }
 
+const char number = '8';
+const char quit = 'q';
+const char print = ';';
+const std::string result = "= ";
+const char name = 'a';
+const char let = 'L';
+const std::string declkey = "let";
 token token_stream::get()
 {
-	if (full)
-	{
-		full = false;
-		return buffer;
-	}
+	if (full) {	full = false;	return buffer;	}
 	char ch;
 	std::cin >> ch;
 	switch (ch)
 	{
 	case print: case quit: case'(':case')':case'*':case'/':case'+':case'-':
-	case'{':case'}':case'!':case'%':
+	case'{':case'}':case'!':case'%':case'=':
 		return token(ch);
 		
 	case'.':case'0':case'1':case'2':case'3':case'4':case'5':case'6':case'7':case'8':case'9':
@@ -1498,14 +1504,118 @@ token token_stream::get()
 		return token(number, val);
 	}
 	default:
-		error("Bad token");
+		if (isalpha(ch))
+		{
+			std::cin.putback(ch);
+			std::string s;
+			std::cin >> s;
+			if (s == declkey) return token(let);
+
+			return token(name, s);
+		}
+		error("Неправильная лексема");
 	}
+}
+
+class Variable {
+public:
+	std::string name;
+	double value;
+	Variable (std::string n, double v)	:name(n), value(v) { }
+};
+
+std::vector<Variable> var_table;
+
+void set_value(std::string s, double d)
+{
+	/*for (int i = 0; i < var_table.size(); ++i)
+	{
+		if (var_table[i].name == s)
+		{
+			var_table[i].value = d;
+			return;
+		}
+		error("set: неопределённая переменная ", s);
+	}*/
+	for ( Variable& v : var_table)
+		if (v.name == s) {
+			v.value = d;
+			return;
+		}
+	error("set: неопределённая переменная ", s);
+}
+
+double get_value(std::string s)
+{
+	/*for (int i = 0; i < var_table.size(); ++i)
+	{
+		if (var_table[i].name == s)
+		{
+			return var_table[i].value;
+		}
+		error("get: неопределённая переменная ", s);
+	}*/
+	for (const Variable& v : var_table)
+		if (v.name == s) return v.value;
+	error("get: неопределённая переменная ", s);
+}
+
+bool is_declared(std::string var)
+{
+	/*for (int i = 0; i < var_table.size(); ++i)
+	{
+		if (var_table[i].name == var)
+		{
+			return true;
+		}
+		return false;
+	}*/
+	for (const Variable& v : var_table)
+		if (v.name == var) return true;
+	return false;
+}
+
+double define_name(std::string var, double val)
+{
+	if (is_declared(var))
+	{
+		error(var, " уже обьявлена.");
+	}
+	var_table.push_back(Variable(var, val));
+	return val;
 }
 
 token_stream ts;
 double expression();
 
-	
+double declaration()
+{
+	token t = ts.get();
+	if (t.sim != name) error("В объявлении ожидается переменная name");
+	std::string var_name = t.name;
+
+	token t2 = ts.get();
+	if (t2.sim != '=') error("В объявлении пропущен символ =", var_name);
+
+	double d = expression();
+	define_name(var_name, d);
+	return d;
+}
+
+double statement()
+{
+	token t = ts.get();
+	switch (t.sim) {
+	case let:
+		return declaration();
+	default:
+		ts.putback(t);
+		return expression();
+	}
+}
+
+
+
 double primary()
 {
 	token t = ts.get();
@@ -1548,6 +1658,8 @@ double primary()
 		return -primary();
 	case '+':
 		return primary();
+	case name:
+		return get_value(t.name);
 	default:
 		error("Numbers not find");
 	}
@@ -1629,7 +1741,7 @@ void calculate()
 		while (t.sim == print) t = ts.get();
 		if (t.sim == quit) return;
 		ts.putback(t);
-		std::cout << result << expression() << std::endl;
+		std::cout << result << statement() << std::endl;
  		/*if (t.sim == quit)				//ver. 1
 		{
 			std::cout << "Quit\n";
