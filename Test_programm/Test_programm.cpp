@@ -1506,9 +1506,11 @@ token token_stream::get()
 	default:
 		if (isalpha(ch))
 		{
-			std::cin.putback(ch);
 			std::string s;
-			std::cin >> s;
+			s += ch;
+			while (std::cin.get(ch) && (isalpha(ch) || isdigit(ch)))
+				s += ch;
+			std::cin.putback(ch);
 			if (s == declkey) return token(let);
 
 			return token(name, s);
@@ -1768,11 +1770,16 @@ int main()
 try
 {
 	setlocale(LC_ALL, "Russian");
+	define_name("pi", 3.1415926535);
+	define_name("e", 2.7182818284);
 	calculate();
 	system("pause");
 	return 0;
 }
-
+catch (std::exception& e) {
+	std::cerr << "Error: " << e.what() << '\n';
+	clean_up_mess();
+}
 catch (...) {
 	std::cerr << "Unknown exception!\n";
 	system("pause");
