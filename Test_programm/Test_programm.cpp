@@ -1422,7 +1422,7 @@
 void error(std::string s)
 {
 	throw std::runtime_error(s);
-}
+}																//вЫвод сообщений об ошибке
 void error(std::string s1, std::string s2)
 {
 	throw std::runtime_error(s1 + s2);
@@ -1433,7 +1433,7 @@ public:
 	char sim;
 	double num;
 	std::string name;
-	token(char ch) : sim(ch), num(0) {}
+	token(char ch) : sim(ch), num(0) {}							//Класс передающий символ и значение
 	token(char ch, double val) : sim(ch), num(val) {}
 	token (char ch, std::string n)	:sim(ch), name(n) {}
 };
@@ -1444,7 +1444,7 @@ public:
 	token_stream();
 	token get();
 	void putback(token t);
-	void ignore(char c);
+	void ignore(char c);										//Класс обрабатывающий поток данных
 private:
 	bool full;
 	token buffer;
@@ -1481,11 +1481,11 @@ void token_stream::ignore(char c)
 const char number = '8';
 const char quit = 'q';
 const char print = ';';
-const std::string result = "= ";
+const std::string result = "= ";									//Лексемы и ключевые слова
 const char name = 'a';
 const char let = 'L';
 const std::string declkey = "let";
-token token_stream::get()
+token token_stream::get()					//Функция считывающая символы из потока
 {
 	if (full) {	full = false;	return buffer;	}
 	char ch;
@@ -1519,7 +1519,7 @@ token token_stream::get()
 	}
 }
 
-class Variable {
+class Variable {								//Класс работающий с переменными
 public:
 	std::string name;
 	double value;
@@ -1528,7 +1528,7 @@ public:
 
 std::vector<Variable> var_table;
 
-void set_value(std::string s, double d)
+void set_value(std::string s, double d)										//Присваивание значения определённой переменной(не используется)
 {
 	/*for (int i = 0; i < var_table.size(); ++i)
 	{
@@ -1547,7 +1547,7 @@ void set_value(std::string s, double d)
 	error("set: неопределённая переменная ", s);
 }
 
-double get_value(std::string s)
+double get_value(std::string s)												//Использование значения определённой переменной
 {
 	/*for (int i = 0; i < var_table.size(); ++i)
 	{
@@ -1590,7 +1590,7 @@ double define_name(std::string var, double val)
 token_stream ts;
 double expression();
 
-double declaration()
+double declaration()								//Объявление переменных
 {
 	token t = ts.get();
 	if (t.sim != name) error("В объявлении ожидается переменная name");
@@ -1604,7 +1604,7 @@ double declaration()
 	return d;
 }
 
-double statement()
+double statement()									//Подключение переменных
 {
 	token t = ts.get();
 	switch (t.sim) {
@@ -1618,7 +1618,7 @@ double statement()
 
 
 
-double primary()
+double primary()		//Первичная работа с выражением, вычесление !,(),{}, обработка отрицательных чисел
 {
 	token t = ts.get();
 	token f = ts.get();
@@ -1667,7 +1667,7 @@ double primary()
 	}
 }
 
-double term()
+double term()				//Вычисление *,/,%
 {
 	double left = primary();
 	token t = ts.get();
@@ -1706,7 +1706,7 @@ double term()
 	}
 }
 
-double expression()
+double expression()				//Вычисление +,-
 {
 	double left = term();
 	token t = ts.get();
@@ -1734,7 +1734,7 @@ void clean_up_mess()
 	ts.ignore(print);
 }
 
-void calculate()
+void calculate()			//Основная функция, запуск вычислений + ключевые слова
 {
 	double val = 0;
 	while (std::cin)
@@ -1771,7 +1771,7 @@ try
 {
 	setlocale(LC_ALL, "Russian");
 	define_name("pi", 3.1415926535);
-	define_name("e", 2.7182818284);
+	define_name("e", 2.7182818284);			//Блок константных переменных
 	calculate();
 	system("pause");
 	return 0;
