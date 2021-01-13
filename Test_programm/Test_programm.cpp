@@ -1414,377 +1414,377 @@
 
 
 
-//Калькулятор(calculator)
-#include <cmath>
-
-
-
-void error(std::string s)
-{
-	throw std::runtime_error(s);
-}																//вЫвод сообщений об ошибке
-void error(std::string s1, std::string s2)
-{
-	throw std::runtime_error(s1 + s2);
-}
-
-class token {
-public:
-	char sim;
-	double num;
-	std::string name;
-	token(char ch) : sim(ch), num(0) {}							//Класс передающий символ и значение
-	token(char ch, double val) : sim(ch), num(val) {}
-	token (char ch, std::string n)	:sim(ch), name(n) {}
-};
-
-
-class token_stream {
-public:
-	token_stream();
-	token get();
-	void putback(token t);
-	void ignore(char c);										//Класс обрабатывающий поток данных
-private:
-	bool full;
-	token buffer;
-	
-};
-
-
-
-token_stream::token_stream()
-		:full(false) , buffer (0)
-{
-}
-
-void token_stream::putback(token t)
-{
-	if (full) error("Buffer is full");
-	buffer = t;
-	full = true;
-}
-
-void token_stream::ignore(char c)
-{
-	if (full && c == buffer.sim)
-	{
-		full = false;
-		return;
-	}
-	full = false;
-	char ch = 0;
-	while (std::cin >> ch)
-		if (ch == c) return;
-}
-
-const char number = '8';
-const char quit = 'q';
-const char print = ';';
-const std::string result = "= ";									//Лексемы и ключевые слова
-const char name = 'a';
-const char let = 'L';
-const std::string declkey = "let";
-token token_stream::get()					//Функция считывающая символы из потока
-{
-	if (full) {	full = false;	return buffer;	}
-	char ch;
-	std::cin >> ch;
-	switch (ch)
-	{
-	case print: case quit: case'(':case')':case'*':case'/':case'+':case'-':
-	case'{':case'}':case'!':case'%':case'=':
-		return token(ch);
-		
-	case'.':case'0':case'1':case'2':case'3':case'4':case'5':case'6':case'7':case'8':case'9':
-	{
-		std::cin.putback(ch);
-		double val;
-		std::cin >> val;
-		return token(number, val);
-	}
-	default:
-		if (isalpha(ch))
-		{
-			std::string s;
-			s += ch;
-			while (std::cin.get(ch) && (isalpha(ch) || isdigit(ch)))
-				s += ch;
-			std::cin.putback(ch);
-			if (s == declkey) return token(let);
-
-			return token(name, s);
-		}
-		error("Неправильная лексема");
-	}
-}
-
-class Variable {								//Класс работающий с переменными
-public:
-	std::string name;
-	double value;
-	Variable (std::string n, double v)	:name(n), value(v) { }
-};
-
-std::vector<Variable> var_table;
-
-void set_value(std::string s, double d)										//Присваивание значения определённой переменной(не используется)
-{
-	/*for (int i = 0; i < var_table.size(); ++i)
-	{
-		if (var_table[i].name == s)
-		{
-			var_table[i].value = d;
-			return;
-		}
-		error("set: неопределённая переменная ", s);
-	}*/
-	for ( Variable& v : var_table)
-		if (v.name == s) {
-			v.value = d;
-			return;
-		}
-	error("set: неопределённая переменная ", s);
-}
-
-double get_value(std::string s)												//Использование значения определённой переменной
-{
-	/*for (int i = 0; i < var_table.size(); ++i)
-	{
-		if (var_table[i].name == s)
-		{
-			return var_table[i].value;
-		}
-		error("get: неопределённая переменная ", s);
-	}*/
-	for (const Variable& v : var_table)
-		if (v.name == s) return v.value;
-	error("get: неопределённая переменная ", s);
-}
-
-bool is_declared(std::string var)
-{
-	/*for (int i = 0; i < var_table.size(); ++i)
-	{
-		if (var_table[i].name == var)
-		{
-			return true;
-		}
-		return false;
-	}*/
-	for (const Variable& v : var_table)
-		if (v.name == var) return true;
-	return false;
-}
-
-double define_name(std::string var, double val)
-{
-	if (is_declared(var))
-	{
-		error(var, " уже обьявлена.");
-	}
-	var_table.push_back(Variable(var, val));
-	return val;
-}
-
-token_stream ts;
-double expression();
-
-double declaration()								//Объявление переменных
-{
-	token t = ts.get();
-	if (t.sim != name) error("В объявлении ожидается переменная name");
-	std::string var_name = t.name;
-
-	token t2 = ts.get();
-	if (t2.sim != '=') error("В объявлении пропущен символ =", var_name);
-
-	double d = expression();
-	define_name(var_name, d);
-	return d;
-}
-
-double statement()									//Подключение переменных
-{
-	token t = ts.get();
-	switch (t.sim) {
-	case let:
-		return declaration();
-	default:
-		ts.putback(t);
-		return expression();
-	}
-}
-
-
-
-double primary()		//Первичная работа с выражением, вычесление !,(),{}, обработка отрицательных чисел
-{
-	token t = ts.get();
-	token f = ts.get();
-	int i = 1;
-	if (f.sim == '!')
-	{
-		if (t.num == 0)	return 1;
-		return std::tgamma(t.num+1);
-	}
-	else
-	{
-		ts.putback(f);
-	}
-	switch (t.sim)
-	{
-	case'(':
-	{
-		double d = expression();
-		t = ts.get();
-		if (t.sim != ')') error(") not find");
-		t = ts.get();
-		if (t.sim == '!')
-		{
-			d = tgamma(d+1);
-		}
-		else ts.putback(t);
-		return d;
-	}
-	case'{':
-	{
-		double d = expression();
-		t = ts.get();
-		if (t.sim != '}') error("} not find");
-		return d;
-	}
-	case number:
-		return t.num;	//Возвращаем число
-	case '-':
-		return -primary();
-	case '+':
-		return primary();
-	case name:
-		return get_value(t.name);
-	default:
-		error("Numbers not find");
-	}
-}
-
-double term()				//Вычисление *,/,%
-{
-	double left = primary();
-	token t = ts.get();
-	while (true)
-	{
-		switch (t.sim)
-		{
-		case '*':
-			left *= primary();
-			t = ts.get();
-			break;
-		case'/':
-		{
-			double d = primary();
-			if (d == 0) error("/: деление на ноль");
-			left /= d;
-			t = ts.get();
-			break;
-		}
-		case'%':
-		{
-			double d = term();
-			int i1 = int(left);
-			if (i1 != left) error("слева от % не целое число");
-			int i2 = int(d);
-			if (i2 != d) error("справа от % не целое число");
-			if (i2 == 0) error("%: деление на ноль");
-			left = i1 % i2;
-			t = ts.get();
-			break;
-		}
-		default:
-			ts.putback(t);
-			return left;
-		}
-	}
-}
-
-double expression()				//Вычисление +,-
-{
-	double left = term();
-	token t = ts.get();
-	while (true)
-	{
-		switch (t.sim)
-		{
-		case '+':
-			left += term();
-			t = ts.get();
-			break;
-		case '-':
-			left -=term();
-			t = ts.get();
-			break;
-		default:
-			ts.putback(t);
-			return left;
-		}
-	}
-}
-
-void clean_up_mess()
-{
-	ts.ignore(print);
-}
-
-void calculate()			//Основная функция, запуск вычислений + ключевые слова
-{
-	double val = 0;
-	while (std::cin)
-	try{
-		token t = ts.get();
-		while (t.sim == print) t = ts.get();
-		if (t.sim == quit) return;
-		ts.putback(t);
-		std::cout << result << statement() << std::endl;
- 		/*if (t.sim == quit)				//ver. 1
-		{
-			std::cout << "Quit\n";
-			break;
-		}
-		if (t.sim == print)
-		{
-			std::cout << result << val << '\n';
-			val = 0;
-		}
-		
-		else
-		{
-			ts.putback(t);
-			val = expression();
-		}*/
-	}
-	catch (std::exception& e) {
-		std::cerr << "Error: " << e.what() << '\n';
-		clean_up_mess();
-	}
-}
-int main()
-try
-{
-	setlocale(LC_ALL, "Russian");
-	define_name("pi", 3.1415926535);
-	define_name("e", 2.7182818284);			//Блок константных переменных
-	calculate();
-	system("pause");
-	return 0;
-}
-catch (std::exception& e) {
-	std::cerr << "Error: " << e.what() << '\n';
-	clean_up_mess();
-}
-catch (...) {
-	std::cerr << "Unknown exception!\n";
-	system("pause");
-	return 2;
-}
+////Калькулятор(calculator)
+//#include <cmath>
+//
+//
+//
+//void error(std::string s)
+//{
+//	throw std::runtime_error(s);
+//}																//вЫвод сообщений об ошибке
+//void error(std::string s1, std::string s2)
+//{
+//	throw std::runtime_error(s1 + s2);
+//}
+//
+//class token {
+//public:
+//	char sim;
+//	double num;
+//	std::string name;
+//	token(char ch) : sim(ch), num(0) {}							//Класс передающий символ и значение
+//	token(char ch, double val) : sim(ch), num(val) {}
+//	token (char ch, std::string n)	:sim(ch), name(n) {}
+//};
+//
+//
+//class token_stream {
+//public:
+//	token_stream();
+//	token get();
+//	void putback(token t);
+//	void ignore(char c);										//Класс обрабатывающий поток данных
+//private:
+//	bool full;
+//	token buffer;
+//	
+//};
+//
+//
+//
+//token_stream::token_stream()
+//		:full(false) , buffer (0)
+//{
+//}
+//
+//void token_stream::putback(token t)
+//{
+//	if (full) error("Buffer is full");
+//	buffer = t;
+//	full = true;
+//}
+//
+//void token_stream::ignore(char c)
+//{
+//	if (full && c == buffer.sim)
+//	{
+//		full = false;
+//		return;
+//	}
+//	full = false;
+//	char ch = 0;
+//	while (std::cin >> ch)
+//		if (ch == c) return;
+//}
+//
+//const char number = '8';
+//const char quit = 'q';
+//const char print = ';';
+//const std::string result = "= ";									//Лексемы и ключевые слова
+//const char name = 'a';
+//const char let = 'L';
+//const std::string declkey = "let";
+//token token_stream::get()					//Функция считывающая символы из потока
+//{
+//	if (full) {	full = false;	return buffer;	}
+//	char ch;
+//	std::cin >> ch;
+//	switch (ch)
+//	{
+//	case print: case quit: case'(':case')':case'*':case'/':case'+':case'-':
+//	case'{':case'}':case'!':case'%':case'=':
+//		return token(ch);
+//		
+//	case'.':case'0':case'1':case'2':case'3':case'4':case'5':case'6':case'7':case'8':case'9':
+//	{
+//		std::cin.putback(ch);
+//		double val;
+//		std::cin >> val;
+//		return token(number, val);
+//	}
+//	default:
+//		if (isalpha(ch))
+//		{
+//			std::string s;
+//			s += ch;
+//			while (std::cin.get(ch) && (isalpha(ch) || isdigit(ch)))
+//				s += ch;
+//			std::cin.putback(ch);
+//			if (s == declkey) return token(let);
+//
+//			return token(name, s);
+//		}
+//		error("Неправильная лексема");
+//	}
+//}
+//
+//class Variable {								//Класс работающий с переменными
+//public:
+//	std::string name;
+//	double value;
+//	Variable (std::string n, double v)	:name(n), value(v) { }
+//};
+//
+//std::vector<Variable> var_table;
+//
+//void set_value(std::string s, double d)										//Присваивание значения определённой переменной(не используется)
+//{
+//	/*for (int i = 0; i < var_table.size(); ++i)
+//	{
+//		if (var_table[i].name == s)
+//		{
+//			var_table[i].value = d;
+//			return;
+//		}
+//		error("set: неопределённая переменная ", s);
+//	}*/
+//	for ( Variable& v : var_table)
+//		if (v.name == s) {
+//			v.value = d;
+//			return;
+//		}
+//	error("set: неопределённая переменная ", s);
+//}
+//
+//double get_value(std::string s)												//Использование значения определённой переменной
+//{
+//	/*for (int i = 0; i < var_table.size(); ++i)
+//	{
+//		if (var_table[i].name == s)
+//		{
+//			return var_table[i].value;
+//		}
+//		error("get: неопределённая переменная ", s);
+//	}*/
+//	for (const Variable& v : var_table)
+//		if (v.name == s) return v.value;
+//	error("get: неопределённая переменная ", s);
+//}
+//
+//bool is_declared(std::string var)
+//{
+//	/*for (int i = 0; i < var_table.size(); ++i)
+//	{
+//		if (var_table[i].name == var)
+//		{
+//			return true;
+//		}
+//		return false;
+//	}*/
+//	for (const Variable& v : var_table)
+//		if (v.name == var) return true;
+//	return false;
+//}
+//
+//double define_name(std::string var, double val)
+//{
+//	if (is_declared(var))
+//	{
+//		error(var, " уже обьявлена.");
+//	}
+//	var_table.push_back(Variable(var, val));
+//	return val;
+//}
+//
+//token_stream ts;
+//double expression();
+//
+//double declaration()								//Объявление переменных
+//{
+//	token t = ts.get();
+//	if (t.sim != name) error("В объявлении ожидается переменная name");
+//	std::string var_name = t.name;
+//
+//	token t2 = ts.get();
+//	if (t2.sim != '=') error("В объявлении пропущен символ =", var_name);
+//
+//	double d = expression();
+//	define_name(var_name, d);
+//	return d;
+//}
+//
+//double statement()									//Подключение переменных
+//{
+//	token t = ts.get();
+//	switch (t.sim) {
+//	case let:
+//		return declaration();
+//	default:
+//		ts.putback(t);
+//		return expression();
+//	}
+//}
+//
+//
+//
+//double primary()		//Первичная работа с выражением, вычесление !,(),{}, обработка отрицательных чисел
+//{
+//	token t = ts.get();
+//	token f = ts.get();
+//	int i = 1;
+//	if (f.sim == '!')
+//	{
+//		if (t.num == 0)	return 1;
+//		return std::tgamma(t.num+1);
+//	}
+//	else
+//	{
+//		ts.putback(f);
+//	}
+//	switch (t.sim)
+//	{
+//	case'(':
+//	{
+//		double d = expression();
+//		t = ts.get();
+//		if (t.sim != ')') error(") not find");
+//		t = ts.get();
+//		if (t.sim == '!')
+//		{
+//			d = tgamma(d+1);
+//		}
+//		else ts.putback(t);
+//		return d;
+//	}
+//	case'{':
+//	{
+//		double d = expression();
+//		t = ts.get();
+//		if (t.sim != '}') error("} not find");
+//		return d;
+//	}
+//	case number:
+//		return t.num;	//Возвращаем число
+//	case '-':
+//		return -primary();
+//	case '+':
+//		return primary();
+//	case name:
+//		return get_value(t.name);
+//	default:
+//		error("Numbers not find");
+//	}
+//}
+//
+//double term()				//Вычисление *,/,%
+//{
+//	double left = primary();
+//	token t = ts.get();
+//	while (true)
+//	{
+//		switch (t.sim)
+//		{
+//		case '*':
+//			left *= primary();
+//			t = ts.get();
+//			break;
+//		case'/':
+//		{
+//			double d = primary();
+//			if (d == 0) error("/: деление на ноль");
+//			left /= d;
+//			t = ts.get();
+//			break;
+//		}
+//		case'%':
+//		{
+//			double d = term();
+//			int i1 = int(left);
+//			if (i1 != left) error("слева от % не целое число");
+//			int i2 = int(d);
+//			if (i2 != d) error("справа от % не целое число");
+//			if (i2 == 0) error("%: деление на ноль");
+//			left = i1 % i2;
+//			t = ts.get();
+//			break;
+//		}
+//		default:
+//			ts.putback(t);
+//			return left;
+//		}
+//	}
+//}
+//
+//double expression()				//Вычисление +,-
+//{
+//	double left = term();
+//	token t = ts.get();
+//	while (true)
+//	{
+//		switch (t.sim)
+//		{
+//		case '+':
+//			left += term();
+//			t = ts.get();
+//			break;
+//		case '-':
+//			left -=term();
+//			t = ts.get();
+//			break;
+//		default:
+//			ts.putback(t);
+//			return left;
+//		}
+//	}
+//}
+//
+//void clean_up_mess()
+//{
+//	ts.ignore(print);
+//}
+//
+//void calculate()			//Основная функция, запуск вычислений + ключевые слова
+//{
+//	double val = 0;
+//	while (std::cin)
+//	try{
+//		token t = ts.get();
+//		while (t.sim == print) t = ts.get();
+//		if (t.sim == quit) return;
+//		ts.putback(t);
+//		std::cout << result << statement() << std::endl;
+// 		/*if (t.sim == quit)				//ver. 1
+//		{
+//			std::cout << "Quit\n";
+//			break;
+//		}
+//		if (t.sim == print)
+//		{
+//			std::cout << result << val << '\n';
+//			val = 0;
+//		}
+//		
+//		else
+//		{
+//			ts.putback(t);
+//			val = expression();
+//		}*/
+//	}
+//	catch (std::exception& e) {
+//		std::cerr << "Error: " << e.what() << '\n';
+//		clean_up_mess();
+//	}
+//}
+//int main()
+//try
+//{
+//	setlocale(LC_ALL, "Russian");
+//	define_name("pi", 3.1415926535);
+//	define_name("e", 2.7182818284);			//Блок константных переменных
+//	calculate();
+//	system("pause");
+//	return 0;
+//}
+//catch (std::exception& e) {
+//	std::cerr << "Error: " << e.what() << '\n';
+//	clean_up_mess();
+//}
+//catch (...) {
+//	std::cerr << "Unknown exception!\n";
+//	system("pause");
+//	return 2;
+//}
 
 
 
@@ -1859,3 +1859,7 @@ catch (...) {
 //}
 
 
+
+
+
+//Тест сборки нескольких файлов
