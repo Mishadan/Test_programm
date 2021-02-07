@@ -1863,3 +1863,93 @@
 
 
 //Тест сборки нескольких файлов
+
+
+//Разработка класса
+
+class Name_pairs {
+public:
+	std::vector<std::string> name;
+	std::vector<double> age;
+	std::vector<std::string> name_db;
+	std::vector<double> age_temp;
+	Name_pairs(std::vector<std::string> s, std::vector<double> d) :
+		name(s), age(d) {};
+
+	Name_pairs()
+	{
+		name = { }, age = { };
+	}
+	void read_names();
+	void read_ages();
+	void print();
+	void sort();
+};
+
+void Name_pairs::read_names()
+{
+	std::string s;
+	while (std::cin >> s && s != ";")
+	{
+		name.push_back(s);
+	}
+	name_db = name;
+	std::cout << '\n';
+}
+
+void Name_pairs::read_ages()
+{
+	double d;
+	while (age.size() != name.size())
+	{
+		std::cout << name[age.size()] << " ";
+		std::cin >> d;
+		age.push_back(d);
+	}
+	age_temp = age;
+	std::cout << '\n';
+}
+
+void Name_pairs::print()
+{
+	for (int i = 0; i < name.size(); i++)
+	{
+		/*int search = 0;
+		for (int j = 0; j < name.size(); j++)
+		{
+			if (name[i] == name_db[j])						ver. 1
+			{
+				std::cout << name[i] << " " << age[i] << '\n';
+			}
+		}*/
+		std::cout << name[i] << " " << age[i] << '\n';
+	}
+	std::cout << '\n';
+}
+
+void Name_pairs::sort()
+{
+	std::sort(name.begin(), name.end());
+	for (int i = 0; i < name.size(); i++)
+	{
+		for (int j = 0; j < name.size(); j++)
+		{
+			if (name[i] == name_db[j])
+			{
+				age_temp[i] = age[j];		//ver. 2
+			}
+		}
+	}
+	age = age_temp;
+}
+
+int main()
+{
+	Name_pairs s;
+	s.read_names();
+	s.read_ages();
+	s.print();
+	s.sort();
+	s.print();
+	system("pause");
+}
