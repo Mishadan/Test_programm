@@ -2005,16 +2005,17 @@ public:
 		}
 	};
 
-	Book(std::string b, std::string a, ISBN i, Date d) :
-		bname(b), aname(a), isbn(i), date(d) {};
+	Book(std::string b, std::string a, ISBN i, Date d, bool t) :
+		bname(b), aname(a), isbn(i), date(d), take(t) {};
 	Book()
 	{
-		static Book a("0", "0", isbn, date);
+		static Book a(bname = "-", aname = "-", isbn, date, take = 0);
 	}
 
 	std::string bname, aname;
 	ISBN isbn;
 	Date date;
+	bool take;
 };
 
 std::ostream& operator<< (std::ostream& o, const Book::ISBN& i)
@@ -2041,12 +2042,12 @@ std::istream& operator>> (std::istream& i, Book::Date& d)
 
 std::ostream& operator<< (std::ostream &os, const Book &b)
 {
-	return os << b.bname << '\t' << b.aname << '\t' << b.isbn << '\t' << b.date << '\n';
+	return os << b.bname << '\t' << b.aname << '\t' << b.isbn << '\t' << b.date << '\t' << b.take << '\n';
 }
 
 std::istream& operator>> (std::istream& is, Book& b)
 {
-	is >> b.bname >> b.aname >> b.isbn >> b.date;
+	is >> b.bname >> b.aname >> b.isbn >> b.date >> b.take;
 	return is;
 }
 
