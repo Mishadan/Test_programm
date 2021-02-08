@@ -1867,89 +1867,194 @@
 
 //Разработка класса
 
-class Name_pairs {
-public:
-	std::vector<std::string> name;
-	std::vector<double> age;
-	std::vector<std::string> name_db;
-	std::vector<double> age_temp;
-	Name_pairs(std::vector<std::string> s, std::vector<double> d) :
-		name(s), age(d) {};
+//class Name_pairs {
+//public:
+//	std::vector<std::string> name;
+//	std::vector<double> age;
+//	std::vector<std::string> name_db;
+//	std::vector<double> age_temp;
+//	Name_pairs(std::vector<std::string> s, std::vector<double> d) :
+//		name(s), age(d) {};
+//
+//	Name_pairs()
+//	{
+//		name = { }, age = { };
+//	}
+//	void read_names();
+//	void read_ages();
+//	void print();
+//	void sort();
+//};
+//
+//void Name_pairs::read_names()
+//{
+//	std::string s;
+//	while (std::cin >> s && s != ";")
+//	{
+//		name.push_back(s);
+//	}
+//	name_db = name;
+//	std::cout << '\n';
+//}
+//
+//void Name_pairs::read_ages()
+//{
+//	double d;
+//	while (age.size() != name.size())
+//	{
+//		std::cout << name[age.size()] << " ";
+//		std::cin >> d;
+//		age.push_back(d);
+//	}
+//	age_temp = age;
+//	std::cout << '\n';
+//}
+//
+//void Name_pairs::print()
+//{
+//	for (int i = 0; i < name.size(); i++)
+//	{
+//		/*int search = 0;
+//		for (int j = 0; j < name.size(); j++)
+//		{
+//			if (name[i] == name_db[j])						sort ver. 1
+//			{
+//				std::cout << name[i] << " " << age[i] << '\n';
+//			}
+//		}*/
+//		std::cout << name[i] << " " << age[i] << '\n';
+//	}
+//	std::cout << '\n';
+//}
+//
+//bool operator== (const Name_pairs& a, const Name_pairs& b)
+//{
+//	return a.name == b.name && a.age == b.age;
+//}
+//
+//bool operator!= (const Name_pairs & a, const Name_pairs & b)
+//{
+//	return !(a == b);
+//}
+//
+//std::ostream& operator<< (std::ostream& os, const Name_pairs& s)
+//{
+//	for (int i = 0; i < s.name.size(); i++)
+//	{
+//		os << s.name[i] << " " << s.age[i] << '\n';
+//	}
+//	os << '\n';
+//	return os;
+//}
+//
+//void Name_pairs::sort()
+//{
+//	std::sort(name.begin(), name.end());
+//	for (int i = 0; i < name.size(); i++)
+//	{
+//		for (int j = 0; j < name.size(); j++)
+//		{
+//			if (name[i] == name_db[j])
+//			{
+//				age_temp[i] = age[j];		//ver. 2
+//			}
+//		}
+//	}
+//	age = age_temp;
+//}
+//
+//int main()
+//{
+//	Name_pairs s;
+//	s.read_names();
+//	s.read_ages();
+//	std::cout << s;
+//	system("pause");
+//}
 
-	Name_pairs()
+
+//Каталог библиотеки
+
+class Book
+{
+public:
+	class ISBN {
+	public:
+		int country, pubcode, unum, chkd;
+		ISBN(int co, int pu, int u, int ch) :
+			country(co), pubcode(pu), unum(u), chkd(ch) {};
+		ISBN()
+		{
+			country = 0;
+			pubcode = 0;
+			unum = 0;
+			chkd = 0;
+		}
+	};
+
+	class Date {
+	public:
+		int dd, mm, yy;
+		Date(int d, int m, int y) :
+			dd(d), mm(m), yy(y) {};
+		Date()
+		{
+			dd = 0;
+			mm = 0;
+			yy = 0;
+		}
+	};
+
+	Book(std::string b, std::string a, ISBN i, Date d) :
+		bname(b), aname(a), isbn(i), date(d) {};
+	Book()
 	{
-		name = { }, age = { };
+		static Book a("0", "0", isbn, date);
 	}
-	void read_names();
-	void read_ages();
-	void print();
-	void sort();
+
+	std::string bname, aname;
+	ISBN isbn;
+	Date date;
 };
 
-void Name_pairs::read_names()
+std::ostream& operator<< (std::ostream& o, const Book::ISBN& i)
 {
-	std::string s;
-	while (std::cin >> s && s != ";")
-	{
-		name.push_back(s);
-	}
-	name_db = name;
-	std::cout << '\n';
+	return o << i.country << "-" << i.pubcode << "-" << i.unum << "-" << i.chkd;
 }
 
-void Name_pairs::read_ages()
+std::istream& operator>> (std::istream& i, Book::ISBN& is)
 {
-	double d;
-	while (age.size() != name.size())
-	{
-		std::cout << name[age.size()] << " ";
-		std::cin >> d;
-		age.push_back(d);
-	}
-	age_temp = age;
-	std::cout << '\n';
+	i >> is.country >> is.pubcode >> is.unum >> is.chkd;
+	return i;
 }
 
-void Name_pairs::print()
+std::ostream& operator<< (std::ostream& o, const Book::Date& d)
 {
-	for (int i = 0; i < name.size(); i++)
-	{
-		/*int search = 0;
-		for (int j = 0; j < name.size(); j++)
-		{
-			if (name[i] == name_db[j])						ver. 1
-			{
-				std::cout << name[i] << " " << age[i] << '\n';
-			}
-		}*/
-		std::cout << name[i] << " " << age[i] << '\n';
-	}
-	std::cout << '\n';
+	return o << d.dd << "." << d.mm << "." << d.yy;
 }
 
-void Name_pairs::sort()
+std::istream& operator>> (std::istream& i, Book::Date& d)
 {
-	std::sort(name.begin(), name.end());
-	for (int i = 0; i < name.size(); i++)
-	{
-		for (int j = 0; j < name.size(); j++)
-		{
-			if (name[i] == name_db[j])
-			{
-				age_temp[i] = age[j];		//ver. 2
-			}
-		}
-	}
-	age = age_temp;
+	i >> d.dd >> d.mm >> d.yy;
+	return i;
+}
+
+std::ostream& operator<< (std::ostream &os, const Book &b)
+{
+	return os << b.bname << '\t' << b.aname << '\t' << b.isbn << '\t' << b.date << '\n';
+}
+
+std::istream& operator>> (std::istream& is, Book& b)
+{
+	is >> b.bname >> b.aname >> b.isbn >> b.date;
+	return is;
 }
 
 int main()
 {
-	Name_pairs s;
-	s.read_names();
-	s.read_ages();
-	s.print();
-	s.sort();
-	s.print();
+	Book book;
+	std::cout << book << '\n';
+	std::cin >> book;
+	std::cout << book << '\n';
 	system("pause");
 }
