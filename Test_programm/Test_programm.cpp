@@ -2005,14 +2005,20 @@ public:
 		}
 	};
 
-	Book(std::string b, std::string a, ISBN i, Date d, bool t) :
-		bname(b), aname(a), isbn(i), date(d), take(t) {};
+	enum class Genre
+	{
+		none, Myth, Fantasy, Poem, For_childe, autobiografy,
+	};
+
+	Book(std::string b, std::string a, Genre gg, ISBN i, Date d, bool t) :
+		bname(b), aname(a), genre(gg), isbn(i), date(d), take(t) {};
 	Book()
 	{
-		static Book a(bname = "-", aname = "-", isbn, date, take = 0);
+		static Book a(bname = "-", aname = "-", genre = Genre::none , isbn, date, take = 0);
 	}
 
 	std::string bname, aname;
+	Genre genre;
 	ISBN isbn;
 	Date date;
 	bool take;
@@ -2042,12 +2048,14 @@ std::istream& operator>> (std::istream& i, Book::Date& d)
 
 std::ostream& operator<< (std::ostream &os, const Book &b)
 {
-	return os << b.bname << '\t' << b.aname << '\t' << b.isbn << '\t' << b.date << '\t' << b.take << '\n';
+	return os << b.bname << '\t' << b.aname << '\t' << static_cast<int>(b.genre) << '\t' << b.isbn << '\t' << b.date << '\t' << b.take << '\n';
 }
 
 std::istream& operator>> (std::istream& is, Book& b)
 {
-	is >> b.bname >> b.aname >> b.isbn >> b.date >> b.take;
+	std::string g;
+	is >> b.bname >> b.aname >> g >> b.isbn >> b.date >> b.take;
+
 	return is;
 }
 
