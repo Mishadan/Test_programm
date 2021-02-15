@@ -1975,95 +1975,162 @@
 
 //Каталог библиотеки
 
-class Book
-{
-public:
-	class ISBN {
-	public:
-		int country, pubcode, unum, chkd;
-		ISBN(int co, int pu, int u, int ch) :
-			country(co), pubcode(pu), unum(u), chkd(ch) {};
-		ISBN()
-		{
-			country = 0;
-			pubcode = 0;
-			unum = 0;
-			chkd = 0;
-		}
-	};
+//class Book
+//{
+//public:
+//	class ISBN {
+//	public:
+//		int country, pubcode, unum, chkd;
+//		ISBN(int co, int pu, int u, int ch) :
+//			country(co), pubcode(pu), unum(u), chkd(ch) {};
+//		ISBN()
+//		{
+//			country = 0;
+//			pubcode = 0;
+//			unum = 0;
+//			chkd = 0;
+//		}
+//	};
+//
+//	class Date {
+//	public:
+//		int dd, mm, yy;
+//		Date(int d, int m, int y) :
+//			dd(d), mm(m), yy(y) {};
+//		Date()
+//		{
+//			dd = 0;
+//			mm = 0;
+//			yy = 0;
+//		}
+//	};
+//
+//	enum class Genre
+//	{
+//		none, Myth, Fantasy, Poem, For_childe, autobiografy,
+//	};
+//
+//	Book(std::string b, std::string a, Genre gg, ISBN i, Date d, bool t) :
+//		bname(b), aname(a), genre(gg), isbn(i), date(d), take(t) {};
+//	Book()
+//	{
+//		static Book a(bname = "-", aname = "-", genre = Genre::none , isbn, date, take = 0);
+//	}
+//
+//	std::string bname, aname;
+//	Genre genre;
+//	ISBN isbn;
+//	Date date;
+//	bool take;
+//};
+//
+//std::ostream& operator<< (std::ostream& o, const Book::ISBN& i)
+//{
+//	return o << i.country << "-" << i.pubcode << "-" << i.unum << "-" << i.chkd;
+//}
+//
+//std::istream& operator>> (std::istream& i, Book::ISBN& is)
+//{
+//	i >> is.country >> is.pubcode >> is.unum >> is.chkd;
+//	return i;
+//}
+//
+//std::ostream& operator<< (std::ostream& o, const Book::Date& d)
+//{
+//	return o << d.dd << "." << d.mm << "." << d.yy;
+//}
+//
+//std::istream& operator>> (std::istream& i, Book::Date& d)
+//{
+//	i >> d.dd >> d.mm >> d.yy;
+//	return i;
+//}
+//
+//std::ostream& operator<< (std::ostream &os, const Book &b)
+//{
+//	return os << b.bname << '\t' << b.aname << '\t' << static_cast<int>(b.genre) << '\t' << b.isbn << '\t' << b.date << '\t' << b.take << '\n';
+//}
+//
+//std::istream& operator>> (std::istream& is, Book& b)
+//{
+//	std::string g;
+//	is >> b.bname >> b.aname >> g >> b.isbn >> b.date >> b.take;
+//
+//	return is;
+//}
+//
+//int main()
+//{
+//	Book book;
+//	std::cout << book << '\n';
+//	std::cin >> book;
+//	std::cout << book << '\n';
+//	system("pause");
+//}
 
-	class Date {
-	public:
-		int dd, mm, yy;
-		Date(int d, int m, int y) :
-			dd(d), mm(m), yy(y) {};
-		Date()
-		{
-			dd = 0;
-			mm = 0;
-			yy = 0;
-		}
-	};
 
-	enum class Genre
-	{
-		none, Myth, Fantasy, Poem, For_childe, autobiografy,
-	};
+//Потоки ввода и вывода
+#include <fstream>
 
-	Book(std::string b, std::string a, Genre gg, ISBN i, Date d, bool t) :
-		bname(b), aname(a), genre(gg), isbn(i), date(d), take(t) {};
-	Book()
-	{
-		static Book a(bname = "-", aname = "-", genre = Genre::none , isbn, date, take = 0);
-	}
-
-	std::string bname, aname;
-	Genre genre;
-	ISBN isbn;
-	Date date;
-	bool take;
+struct Reading {
+	int hour;
+	double tempr;
+	Reading(int h, double t) : hour(h), tempr(t) {}
 };
 
-std::ostream& operator<< (std::ostream& o, const Book::ISBN& i)
-{
-	return o << i.country << "-" << i.pubcode << "-" << i.unum << "-" << i.chkd;
+void fill_vector(std::istream& ist, std::vector<int>& v, char terminator)
+try {
+	int i = 0;
+	while (ist >> i)
+		v.push_back(i);
+		if (ist.eof()) return;
+		if (ist.fail())
+		{
+			ist.clear();
+			char c;
+			ist >> c;
+			if (c != terminator) {
+				ist.unget();
+				ist.exceptions(ist.exceptions() | std::ios_base::failbit);
+				ist.clear(std::ios_base::failbit);
+			}
+		}
 }
 
-std::istream& operator>> (std::istream& i, Book::ISBN& is)
+catch (std::exception& x)
 {
-	i >> is.country >> is.pubcode >> is.unum >> is.chkd;
-	return i;
-}
-
-std::ostream& operator<< (std::ostream& o, const Book::Date& d)
-{
-	return o << d.dd << "." << d.mm << "." << d.yy;
-}
-
-std::istream& operator>> (std::istream& i, Book::Date& d)
-{
-	i >> d.dd >> d.mm >> d.yy;
-	return i;
-}
-
-std::ostream& operator<< (std::ostream &os, const Book &b)
-{
-	return os << b.bname << '\t' << b.aname << '\t' << static_cast<int>(b.genre) << '\t' << b.isbn << '\t' << b.date << '\t' << b.take << '\n';
-}
-
-std::istream& operator>> (std::istream& is, Book& b)
-{
-	std::string g;
-	is >> b.bname >> b.aname >> g >> b.isbn >> b.date >> b.take;
-
-	return is;
+	std::cerr << x.what() << '\n';
 }
 
 int main()
 {
-	Book book;
-	std::cout << book << '\n';
-	std::cin >> book;
-	std::cout << book << '\n';
+	std::vector<int> v;
+	
+	std::string name = "D:\\ist.txt";
+	std::ifstream ist(name.c_str());
+	if (!ist) std::cout << "error:ist";
+	name = "D:\\result.txt";
+	std::ofstream ost(name.c_str());
+	if (!ost) std::cout << "error:ost";
+	fill_vector(ist, v, '*');
+	for (int i = 0; i < v.size(); ++i)
+	{
+		ost << i + 1 << ". " << v[i] << '\n';
+	}
+	/*
+	
+	std::vector<Reading> temps;
+	int hour;
+	double temprs;
+	while (ist >> hour >> temprs)
+	{
+		if (hour < 0 || 23 < hour)	std::cout << "error: hour";
+		temps.push_back(Reading(hour, temprs));
+	}
+	for (int i = 0; i < temps.size(); ++i)
+	{
+		ost << '(' << temps[i].hour << ", " << temps[i].tempr << ")\n";
+	}*/
 	system("pause");
+	return 0;
 }
