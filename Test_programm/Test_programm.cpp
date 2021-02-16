@@ -2081,9 +2081,10 @@ struct Reading {
 void fill_vector(std::istream& ist, std::vector<int>& v, char terminator)
 try {
 	int i = 0;
-	while (ist >> i)
-		v.push_back(i);
+	//while (ist >> i)	v.push_back(i);	ver.1
+	for (int i; ist >> i;) v.push_back(i);    //ver.2
 		if (ist.eof()) return;
+		if (ist.bad()) ist.exceptions(ist.exceptions() | std::ios_base::badbit);
 		if (ist.fail())
 		{
 			ist.clear();
@@ -2091,7 +2092,7 @@ try {
 			ist >> c;
 			if (c != terminator) {
 				ist.unget();
-				ist.exceptions(ist.exceptions() | std::ios_base::failbit);
+				
 				ist.clear(std::ios_base::failbit);
 			}
 		}
@@ -2105,12 +2106,12 @@ catch (std::exception& x)
 int main()
 {
 	std::vector<int> v;
-	
-	std::string name = "D:\\ist.txt";
-	std::ifstream ist(name.c_str());
+
+	std::string iname = "D:\\ist.txt";
+	std::ifstream ist{ iname };
 	if (!ist) std::cout << "error:ist";
-	name = "D:\\result.txt";
-	std::ofstream ost(name.c_str());
+	std::string oname = "D:\\result.txt";
+	std::ofstream ost{ oname };
 	if (!ost) std::cout << "error:ost";
 	fill_vector(ist, v, '*');
 	for (int i = 0; i < v.size(); ++i)
