@@ -2070,68 +2070,124 @@
 
 
 //Потоки ввода и вывода
-#include <fstream>
+//#include <fstream>
+//
+//struct Reading {
+//	int hour;
+//	double tempr;
+//	Reading(int h, double t) : hour(h), tempr(t) {}
+//};
+//
+//void fill_vector(std::istream& ist, std::vector<int>& v, char terminator)
+//try {
+//	int i = 0;
+//	//while (ist >> i)	v.push_back(i);	ver.1
+//	for (int i; ist >> i;) v.push_back(i);    //ver.2
+//		if (ist.eof()) return;
+//		if (ist.bad()) ist.exceptions(ist.exceptions() | std::ios_base::badbit);
+//		if (ist.fail())
+//		{
+//			ist.clear();
+//			char c;
+//			ist >> c;
+//			if (c != terminator) {
+//				ist.unget();
+//				
+//				ist.clear(std::ios_base::failbit);
+//			}
+//		}
+//}
+//
+//catch (std::exception& x)
+//{
+//	std::cerr << x.what() << '\n';
+//}
+//
+//int main()
+//{
+//	std::vector<int> v;
+//
+//	std::string iname = "D:\\ist.txt";
+//	std::ifstream ist{ iname };
+//	if (!ist) std::cout << "error:ist";
+//	std::string oname = "D:\\result.txt";
+//	std::ofstream ost{ oname };
+//	if (!ost) std::cout << "error:ost";
+//	fill_vector(ist, v, '*');
+//	for (int i = 0; i < v.size(); ++i)
+//	{
+//		ost << i + 1 << ". " << v[i] << '\n';
+//	}
+//	/*
+//	
+//	std::vector<Reading> temps;
+//	int hour;
+//	double temprs;
+//	while (ist >> hour >> temprs)
+//	{
+//		if (hour < 0 || 23 < hour)	std::cout << "error: hour";
+//		temps.push_back(Reading(hour, temprs));
+//	}
+//	for (int i = 0; i < temps.size(); ++i)
+//	{
+//		ost << '(' << temps[i].hour << ", " << temps[i].tempr << ")\n";
+//	}*/
+//	system("pause");
+//	return 0;
+//}
 
-struct Reading {
-	int hour;
-	double tempr;
-	Reading(int h, double t) : hour(h), tempr(t) {}
+
+//Class Points and io
+
+#include <fstream>
+class Points {
+public:
+	double x, y;
+	Points(double xx, double yy) :
+		x(xx), y(yy) {};
 };
 
-void fill_vector(std::istream& ist, std::vector<int>& v, char terminator)
-try {
-	int i = 0;
-	//while (ist >> i)	v.push_back(i);	ver.1
-	for (int i; ist >> i;) v.push_back(i);    //ver.2
-		if (ist.eof()) return;
-		if (ist.bad()) ist.exceptions(ist.exceptions() | std::ios_base::badbit);
-		if (ist.fail())
-		{
-			ist.clear();
-			char c;
-			ist >> c;
-			if (c != terminator) {
-				ist.unget();
-				
-				ist.clear(std::ios_base::failbit);
-			}
-		}
-}
-
-catch (std::exception& x)
+bool issame_vp(std::vector<Points>& p1, std::vector<Points>& p2)		//Сравнение векторов точек
 {
-	std::cerr << x.what() << '\n';
+	if (p1.size() != p2.size()) return false;
+	for (int i = 0; i < p1.size(); i++)
+	{
+		if (p1[i].x != p2[i].x || p1[i].y != p2[i].y) return false;
+	}
+	return true;
 }
 
 int main()
 {
-	std::vector<int> v;
-
-	std::string iname = "D:\\ist.txt";
-	std::ifstream ist{ iname };
-	if (!ist) std::cout << "error:ist";
-	std::string oname = "D:\\result.txt";
-	std::ofstream ost{ oname };
-	if (!ost) std::cout << "error:ost";
-	fill_vector(ist, v, '*');
-	for (int i = 0; i < v.size(); ++i)
+	std::vector<Points> original_points;
+	Points p{0.0, 0.0};
+	while (original_points.size() < 7)
 	{
-		ost << i + 1 << ". " << v[i] << '\n';
+		std::cin >> p.x >> p.y;
+		original_points.push_back(p);
 	}
-	/*
-	
-	std::vector<Reading> temps;
-	int hour;
-	double temprs;
-	while (ist >> hour >> temprs)
+	/*for (int i = 0; i < original_points.size(); i++) { std::cout << original_points[i].x << " " << original_points[i].y << '\n'; }*/
+	std::string name = "D:\\mydata.txt";
+	std::ofstream ost{ name };
+	if (!ost) std::cout << "Error open ost\n";
+	for (int i = 0; i < original_points.size(); i++)
 	{
-		if (hour < 0 || 23 < hour)	std::cout << "error: hour";
-		temps.push_back(Reading(hour, temprs));
+		ost << original_points[i].x << " " << original_points[i].y << '\n';
 	}
-	for (int i = 0; i < temps.size(); ++i)
+	ost.close();
+	std::ifstream ist{name};
+	if (!ist) std::cout << "Error open ist\n";
+	std::vector<Points> processed_points;
+	while (ist >> p.x >> p.y)
 	{
-		ost << '(' << temps[i].hour << ", " << temps[i].tempr << ")\n";
-	}*/
+		/*ist >> p.x;*/	//проверка issame_vp
+		processed_points.push_back(p);
+	}
+	std::cout << "1\n";
+	for (int i = 0; i < original_points.size(); i++) { std::cout << original_points[i].x << " " << original_points[i].y << '\n'; }
+	std::cout << "2\n";
+	for (int i = 0; i < processed_points.size(); i++) { std::cout << processed_points[i].x << " " << processed_points[i].y << '\n'; }
+	if (!issame_vp(original_points, processed_points)) std::cout << "Something is wrong!\n";
 	system("pause");
 	return 0;
 }
